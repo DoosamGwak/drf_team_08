@@ -19,6 +19,6 @@ def validate_user_data(user_data):
     if User.objects.filter(username=username).exists():
         return "already existed username"
     
-    if User.objects.filter(username=username).exists():
-        return "already existed username"
+    if User.objects.filter(email=email).exists():
+        return "already existed email"
     
