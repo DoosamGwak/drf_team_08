@@ -1,9 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework import status,viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Article
-from .serializers import ArticleSerializer
+from .serializers import ArticleSerializer,ArticleDetailSerializer
 
 
 class ArticleListAPIView(APIView):
@@ -18,4 +18,25 @@ class ArticleListAPIView(APIView):
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data)
 
+class ArticleDetailAPIView(APIView):
+
+    def get_object(self, pk):
+        return get_object_or_404(Article, pk=pk)
+
+    def get(self, request, pk):
+        article = self.get_object(pk)
+        serializer = ArticleDetailSerializer(article)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        article = self.get_object(pk)
+        serializer = ArticleDetailSerializer(article, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
+    def delete(self, request, pk):
+        article = self.get_object(pk)
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
