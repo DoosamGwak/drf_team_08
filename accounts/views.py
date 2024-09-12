@@ -5,7 +5,7 @@ from .validators import validate_user_data
 from .serializers import UserSerializer, UserLoginSerializer, UserProfileSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -64,11 +64,28 @@ class UserLoginView(APIView):
     
 class UserProfileView(APIView):
     
-    permission_classes = [AllowAny]
+    
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
     
     def get(self, request, username):
         user = User.objects.get(username=username)
-        
         serializer = UserProfileSerializer(user)
-        
         return Response(serializer.data)
+    
+    
+    def delete(self, request, username):
+        password = request.data.get("password")
+        
+        if not request.user.check_password(password):
+            return Response(
+                {
+                    "message": "incorrect old password"
+                },
+                status=400
+            )  
+        request.user.is_active=False
+        request.user.save()
+        return Response({"message : 계정이 성공적으로 탈퇴 되었습니다"})
+    
+    
