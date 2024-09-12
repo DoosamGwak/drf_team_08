@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Article
+from .models import Article,Comment
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
@@ -16,3 +16,10 @@ class ArticleSerializer(ArticleDetailSerializer):
         else:
             content = obj.content
         return  content
+    
+class CommentSerializer(serializers.ModelSerializer):
+    article = serializers.CharField(source='article.title', read_only=True)
+
+    class Meta:
+        model= Comment
+        fields=('article','content','created_at','updated_at')
