@@ -11,6 +11,7 @@ class User(AbstractUser):
     first_name = None
     last_name = None
 
+    email = models.EmailField(max_length=254, unique=True)
     name = models.CharField(max_length=50) #실명
     nickname = models.CharField(max_length=50) #별명
     birthday = models.DateField()
