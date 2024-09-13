@@ -21,6 +21,9 @@ class ArticleListAPIView(ListAPIView):
         return Article.objects.all()
 
     def post(self, request):
+        if 'image' not in request.data:
+            return Response({'ERROR': 'Image file is required.'}, status=400)
+
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()

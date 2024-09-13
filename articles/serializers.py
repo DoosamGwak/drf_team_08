@@ -6,7 +6,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Image
-        fields = ("id","image",)
+        fields = ("id","images",)
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
@@ -22,16 +22,11 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
         instance.save(update_fields=["hits"])
         return super().to_representation(instance)
 
-    # 모든 이미지 보이기 로직
-    def get_images(self, instance):
-        all_images = Image.objects.all()
-        return ImageSerializer(all_images, many=True).data
 
 
 class ArticleSerializer(serializers.ModelSerializer):
     images = serializers.ListField(
-        child=serializers.ImageField(), required=False
-    )  # Allow multiple images
+    child=serializers.ImageField(), required=False)  # Allow multiple images
 
     class Meta:
         model = Article
@@ -46,7 +41,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         return content
 
     def create(self, validated_data):
-        images_data = validated_data.pop("images",[])
+        images_data = validated_data.pop("images")
         print(images_data,"1"*30)
         article = Article.objects.create(**validated_data)
         for image_data in images_data:
@@ -55,10 +50,3 @@ class ArticleSerializer(serializers.ModelSerializer):
         print("4"*30)
         return article
 
-    # def create(self, validated_data):
-    #     instance = Article.objects.create(**validated_data)
-    #     print(type(self.data),"1"*30)
-    #     image_set = self.data["request"]
-    #     for image_data in image_set.getlist("image"):
-    #         Image.objects.create(article=instance, image=image_data)
-    #     return instance

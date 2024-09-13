@@ -16,5 +16,5 @@ class Article(models.Model):
 
 
 class Image(models.Model):
-    article = models.ForeignKey(Article,on_delete=models.CASCADE, related_name="images")
+    article = models.ForeignKey(Article,on_delete=models.CASCADE, related_name="image")
     image_url = models.ImageField(upload_to="images/")
