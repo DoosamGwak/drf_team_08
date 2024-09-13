@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework import status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
 from .models import Article
 from .serializers import (
     ArticleSerializer,
@@ -10,18 +12,20 @@ from .serializers import (
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
-class ArticleListAPIView(APIView):
+class ArticleListAPIView(ListAPIView):
+    pagination_class = PageNumberPagination
+    serializer_class = ArticleSerializer
+
+    # 페이지네이션 리스트 조회
+    def get_queryset(self):
+        return Article.objects.all()
+
     def post(self, request):
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self, request):
-        articles = Article.objects.all()
-        serializer = ArticleSerializer(articles, many=True)
-        return Response(serializer.data)
 
 
 class ArticleDetailAPIView(APIView):

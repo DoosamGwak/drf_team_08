@@ -7,8 +7,6 @@ class Article(models.Model):
     # category = models.ForeignKey()
     # reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
-    # image n2m 중계테이블 생성
-    # images = models.ManyToManyField('Image', related_name='articles_image')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     hits = models.PositiveIntegerField(blank=True, default=0)
@@ -17,5 +15,6 @@ class Article(models.Model):
         return self.title
 
 
-# class Image(models.Model):
-#     image_url = models.ImageField(upload_to="images/")
+class Image(models.Model):
+    article = models.ForeignKey(Article,on_delete=models.CASCADE, related_name="images")
+    image_url = models.ImageField(upload_to="images/")
