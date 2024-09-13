@@ -4,6 +4,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Article,Comment
 from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer
+from rest_framework.pagination import PageNumberPagination
+
+#페이지네이션
+class CommentPagination(PageNumberPagination):
+    page_size = 5
+    max_page_size = 100
 
 # 기사 작성 및  목록 조회
 class ArticleListAPIView(APIView):
@@ -43,50 +49,49 @@ class ArticleDetailAPIView(APIView):
     
 # 댓글 작성 및  목록 조회
 class CommentListAPIView(APIView):
+    
+    def get_object(self, pk):
+        return get_object_or_404(Article, pk=pk)
 
     def post(self, request, pk):
         
-        try:
-            article = Article.objects.get(pk=pk)
-        except Article.DoesNotExist:
-            return Response({" error": "삭제된 기사 또는 잘못된 접근입니다."}, status=404)
-        
+        article = self.get_object(pk)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(article=article)  
             return Response(serializer.data, status=201)
-    
-    def get(self, request, pk):
-    
-        try:
-            article = Article.objects.get(pk=pk)
-        except Article.DoesNotExist:
-            return Response({" error": "삭제된 기사 또는 잘못된 접근입니다."}, status=404)
         
-        serializer = CommentSerializer(data=request.data)
-        comment = Comment.objects.filter(article=article)
-        serializer = CommentSerializer(comment, many=True)
-        return Response(serializer.data)
+    pagination_class = CommentPagination
+
+    def get(self, request, pk):
+
+        article = self.get_object(pk)
+        comment = Comment.objects.filter(article=article, is_deleted=False)
+
+        paginator = self.pagination_class()
+        paginated_comments = paginator.paginate_queryset(comment, request)
+
+        serializer = CommentSerializer(paginated_comments, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 # 댓글 수정 및  삭제
 class CommentEditAPIView(APIView):
 
+    def get_object(self, pk):
+        return get_object_or_404(Comment, pk=pk)
+
     def put(self, request, comment_pk):
-        try:
-            comment = Comment.objects.get(id=comment_pk)
-        except Comment.DoesNotExist:
-            return Response({"error": "삭제된 댓글 또는 잘못된 접근입니다."}, status=404)
-        comment = Comment.objects.get(id=comment_pk)
+        
+        comment = self.get_object(comment_pk)
+        comment = Comment.objects.get(pk=comment_pk,is_deleted=False)
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
 
     def delete(self, request, comment_pk):
-        try:
-            comment = Comment.objects.get(id=comment_pk)
-        except Comment.DoesNotExist:
-            return Response({"error": "삭제된 댓글 또는 잘못된 접근입니다."}, status=404)
-        comment = Comment.objects.get(id=comment_pk)
+        
+        comment = self.get_object(comment_pk)
+        comment = Comment.objects.get(pk=comment_pk,is_deleted=False)
         comment.delete()
         return Response({"detail": "댓글이 삭제되었습니다."},status=204)
