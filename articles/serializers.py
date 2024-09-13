@@ -1,13 +1,12 @@
 from rest_framework import serializers
 from .models import Article, Image
 
-
 class ImageSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(use_url=True)
 
     class Meta:
         model = Image
-        fields = "__all__"
+        fields = ("id","image",)
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
@@ -30,12 +29,13 @@ class ArticleDetailSerializer(serializers.ModelSerializer):
 
 
 class ArticleSerializer(serializers.ModelSerializer):
-    # content = serializers.SerializerMethodField()
-    images = serializers.SerializerMethodField()
+    images = serializers.ListField(
+        child=serializers.ImageField(), required=False
+    )  # Allow multiple images
 
     class Meta:
         model = Article
-        fields = "__all__"
+        fields = ['id', 'title', 'content', 'images']
 
     # 기사 리스트 내용 50자 이내로만 나오게 하는 로직
     def get_content(self, instance):
@@ -45,24 +45,20 @@ class ArticleSerializer(serializers.ModelSerializer):
             content = instance.content
         return content
 
-    # def create(self, validated_data):
-    #     print("create시작")
-    #     print(validated_data)
-    #     images_data = validated_data.pop("images", [])  # 이미지 데이터 분리
-    #     article = Article.objects.create(**validated_data)  # 기사 생성
-    #     for image_data in images_data:  # 이미지 생성 후 연결
-    #         print(image_data)
-    #         image = Image.objects.create(**image_data)
-    #         image.article = article
-    #     return article
-    def get_images(self, obj):
-        image = obj.image.all()
-        return ImageSerializer(instance=image, many=True, context=self.context).data
-
     def create(self, validated_data):
-        instance = Article.objects.create(**validated_data)
-        print(self.request)
-        image_set = self.request.FILES
-        for image_data in image_set.getlist("images"):
-            Image.objects.create(article=instance, image=image_data)
-        return instance
+        images_data = validated_data.pop("images",[])
+        print(images_data,"1"*30)
+        article = Article.objects.create(**validated_data)
+        for image_data in images_data:
+            print(image_data,"3"*30)
+            Image.objects.create(article=article, image_url=image_data)
+        print("4"*30)
+        return article
+
+    # def create(self, validated_data):
+    #     instance = Article.objects.create(**validated_data)
+    #     print(type(self.data),"1"*30)
+    #     image_set = self.data["request"]
+    #     for image_data in image_set.getlist("image"):
+    #         Image.objects.create(article=instance, image=image_data)
+    #     return instance
