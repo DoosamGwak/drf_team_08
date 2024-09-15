@@ -11,8 +11,9 @@ class User(AbstractUser):
     first_name = None
     last_name = None
 
-    name = models.CharField(max_length=50)
-    nickname = models.CharField(max_length=50)
+    email = models.EmailField(max_length=254, unique=True)
+    name = models.CharField(max_length=50) #실명
+    nickname = models.CharField(max_length=50) #별명
     birthday = models.DateField()
     image = models.ImageField(upload_to="images/", default="images/default_user.png")
     gender = models.CharField(max_length=1, choices=CHOICE_GENDER)
