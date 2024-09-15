@@ -1,19 +1,37 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Article,Comment
-from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.generics import ListAPIView
+from django.shortcuts import get_object_or_404
+from .models import Article,Comment, Image
+from .serializers import (
+                          ArticleSerializer,
+                          ArticleDetailSerializer,
+                          CommentSerializer,
+                        )
+
 
 #페이지네이션
 class CommentPagination(PageNumberPagination):
     page_size = 5
     max_page_size = 100
 
-# 기사 작성 및  목록 조회
-class ArticleListAPIView(APIView):
+
+class ArticleListAPIView(ListAPIView):
+    pagination_class = PageNumberPagination
+    serializer_class = ArticleSerializer
+
+    # 페이지네이션 리스트 조회
+    def get_queryset(self):
+        return Article.objects.all()
+
     def post(self, request):
+        # 이미지 key error 처리
+        if 'images' not in request.data:
+            return Response({'ERROR': 'Image file is required.'}, status=400)
+
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -24,9 +42,9 @@ class ArticleListAPIView(APIView):
         serializer = ArticleSerializer(articles, many=True)
         return Response(serializer.data)
     
+    
 # 기사 세부 조회 수정 및 삭제
 class ArticleDetailAPIView(APIView):
-
     def get_object(self, pk):
         return get_object_or_404(Article, pk=pk)
 
@@ -46,6 +64,7 @@ class ArticleDetailAPIView(APIView):
         article = self.get_object(pk)
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
     
 # 댓글 작성 및  목록 조회
 class CommentListAPIView(APIView):
@@ -74,6 +93,7 @@ class CommentListAPIView(APIView):
         serializer = CommentSerializer(paginated_comments, many=True)
         return paginator.get_paginated_response(serializer.data)
 
+      
 # 댓글 수정 및  삭제
 class CommentEditAPIView(APIView):
 
@@ -95,3 +115,4 @@ class CommentEditAPIView(APIView):
         comment = Comment.objects.get(pk=comment_pk,is_deleted=False)
         comment.delete()
         return Response({"detail": "댓글이 삭제되었습니다."},status=204)
+
