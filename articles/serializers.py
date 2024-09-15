@@ -1,6 +1,10 @@
-from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from .models import Article, Image
+from rest_framework import serializers
+
+from .models import Article,Comment,Image
+
+
+ 
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -12,6 +16,7 @@ class ImageSerializer(serializers.ModelSerializer):
             "id",
             "image_url",
         )
+
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
@@ -44,9 +49,9 @@ class ArticleSerializer(serializers.ModelSerializer):
             if len(instance.content) > 50:  # 내용이 50자보다 길면
                 return instance.content[:50] + "..."  # 50자까지 잘라서 반환합니다.
             return instance.content  # 그렇지 않으면 원본 내용을 반환합니다.
-        return instance.content  # POST 요청일 때는 원본 내용을 그대로 반환합니다.
-
-    # PK가 가장 낮은 이미지를 가져오는 로직
+        return instance.content  # POST 요청일 때는 원본 내용을 그대로 반환합니다
+   
+  # PK가 가장 낮은 이미지를 가져오는 로직
     def get_image(self, instance):
         request = self.context.get("request")  # 요청 정보를 가져옵니다.
         if request and request.method == "GET":  # GET 요청인지 확인합니다.
@@ -63,10 +68,19 @@ class ArticleSerializer(serializers.ModelSerializer):
             representation["content"] = self.get_content(instance)  # 가공된 content를 설정합니다.
             representation["images"] = self.get_image(instance)  # 가공된 image를 설정합니다.
         return representation  # 최종 데이터를 반환합니다.
-
+    
     def create(self, validated_data):
         images_data = validated_data.pop("images")
         article = Article.objects.create(**validated_data)
         for image_data in images_data:
             Image.objects.create(article=article, image_url=image_data)
         return article
+      
+      
+ class CommentSerializer(serializers.ModelSerializer):
+    article = serializers.CharField(source='article.title', read_only=True)
+
+    class Meta:
+        model= Comment
+        fields=('article','content','created_at','updated_at')     
+
