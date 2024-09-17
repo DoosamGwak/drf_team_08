@@ -18,7 +18,7 @@ from .serializers import (
     ArticleDetailSerializer,
     CommentSerializer,
 )
-from .permissons import ArticleOwnerOnly, ReporterOnly
+from .permissons import ArticleOwnerOnly, ReporterOrReadOnly
 from .pagnations import CommentPagination
 
 
@@ -26,15 +26,9 @@ class ArticleListAPIView(ListCreateAPIView):
     queryset = Article.objects.all()
     pagination_class = PageNumberPagination
     serializer_class = ArticleListSerializer
-    permission_classes = [
-        IsAuthenticatedOrReadOnly,
-        ReporterOnly,
-    ]
+    permission_classes = [ReporterOrReadOnly]
 
     def post(self, request, *args, **kwargs):
-        self.permission_classes = [
-            ReporterOnly,
-        ]
         self.serializer_class = ArticleCreateSerializer
         return super().post(request, *args, **kwargs)
 
@@ -67,6 +61,7 @@ class ArticleDetailAPIView(APIView):
 
     def put(self, request, pk):
         article = self.get_object(pk)
+        self.check_object_permissions(request, article)
         serializer = ArticleDetailSerializer(article, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -74,6 +69,7 @@ class ArticleDetailAPIView(APIView):
 
     def delete(self, request, pk):
         article = self.get_object(pk)
+        self.check_object_permissions(request, article)
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
