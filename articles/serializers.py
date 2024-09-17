@@ -1,7 +1,15 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
-from .models import Article, Comment, Image
 
+from .models import Article,Comment,Image,Category
+
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Category
+        fields = ("id", "category_name",)
 
 class ImageSerializer(serializers.ModelSerializer):
     image_url = serializers.ImageField(use_url=True)
@@ -37,7 +45,8 @@ class ArticleListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = (
-            "id",
+            "id", 
+            "category",
             "title",
             "reporter",
             "preview_content",

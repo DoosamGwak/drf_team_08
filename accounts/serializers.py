@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User,Blind
 
 class UserSerializer(serializers.ModelSerializer):
     password=serializers.CharField(write_only=True)
@@ -51,5 +51,11 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             'birthday',
             'image',
             'gender',
-            "introduction",
+            'introduction',
         )
+
+
+class BlindSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Blind
+        fields = ['blinder', 'blinded']        
