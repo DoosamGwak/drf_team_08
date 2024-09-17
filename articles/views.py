@@ -46,26 +46,6 @@ class ArticleListAPIView(ListCreateAPIView):
         for image in images:
             Image.objects.create(article=article, image_url=image)
 
-    # 페이지네이션 리스트 조회
-    # def get_queryset(self):
-    #     return Article.objects.all()
-
-    # def get(self, request):
-    #     articles = Article.objects.all()
-    #     serializer = ArticleListSerializer(articles, many=True)
-    #     return Response(serializer.data)
-
-    # def post(self, request):
-    #     self.permission_classes = [IsAuthenticated, ReporterOnly,]
-    #     if 'images' not in request.data: # 이미지 key error 처리
-    #         return Response({'ERROR': 'Image file is required.'}, status=400)
-
-    #     print(request.data, request.user, "444444444444444444444444444444444444444")
-    #     serializer = ArticleCreateSerializer(data=request.data)
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save(reporter = request.user)
-    #         return Response(serializer.data, status=201)
-
 
 # 기사 세부 조회 수정 및 삭제
 class ArticleDetailAPIView(APIView):

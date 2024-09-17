@@ -84,23 +84,6 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
             )  # 이미지 URL 반환
         return None  # 이미지가 없으면 None을 반환
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)  # 기본 데이터를 가져옵니다.
-    #     request = self.context.get("request")  # 요청 정보를 가져옵니다.
-    #     if request and request.method == "GET":
-    #         representation["content"] = self.get_content(instance)  # 가공된 content를 설정합니다.
-    #         representation["images"] = self.get_image(instance)  # 가공된 image를 설정합니다.
-    #     return representation  # 최종 데이터를 반환합니다.
-
-    # def create(self, validated_data):
-    #     images_data = validated_data.pop("images")
-    #     print("111111111111111111111111111")
-    #     article = Article.objects.create(**validated_data)
-    #     print("22222222222222222222222222222222222")
-    #     for image_data in images_data:
-    #         Image.objects.create(article=article, image_url=image_data)
-    #     return article
-
 
 class CommentSerializer(serializers.ModelSerializer):
     article = serializers.CharField(source="article.title", read_only=True)
