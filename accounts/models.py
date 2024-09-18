@@ -16,17 +16,9 @@ class User(AbstractUser):
     image = models.ImageField(upload_to="images/", default="images/default_user.png")
     gender = models.CharField(max_length=1, choices=CHOICE_GENDER)
     introduction = models.TextField(blank=True)
-    blinded_journalists = models.ManyToManyField(Journalist, related_name='blinded_by_users', blank=True)
+    blinding = models.ManyToManyField('self', symmetrical=False, related_name='blinders', blank=True)
+    
     def __str__(self):
         return self.username
 
 
-class Blind(models.Model):
-    blinder = models.ForeignKey(User, related_name='blinding', on_delete=models.CASCADE)
-    blinded = models.ForeignKey(User, related_name='blinders', on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('blinder', 'blinded')  # 중복 방지
-
-    def __str__(self):
-        return f"{self.blinder} blinds {self.blinded}"

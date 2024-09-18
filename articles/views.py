@@ -10,7 +10,6 @@ from rest_framework.permissions import (
 )
 from rest_framework.generics import ListCreateAPIView
 from django.shortcuts import get_object_or_404
-from accounts.models import Blind
 from .models import Article,Comment,Image,Category
 from .serializers import (
     ArticleListSerializer,
@@ -23,7 +22,7 @@ from .permissons import ArticleOwnerOnly, ReporterOnly
 from .pagnations import CommentPagination, ArticlePagination
 
 
-# 기사 생성
+# 기사 생성 밎 목록 조회
 class ArticleListAPIView(ListCreateAPIView):
     queryset = Article.objects.all()
     pagination_class = ArticlePagination
@@ -36,20 +35,20 @@ class ArticleListAPIView(ListCreateAPIView):
     def get(self, request):
         self.permission_classes = [AllowAny] 
         user = request.user
-        print(user)
 
         # 사용자가 회원인 경우
         if user.is_authenticated:
-            blinded_reporters = Blind.objects.filter(blinder=user).values_list('blinded', flat=True)
-            print(blinded_reporters)
+            blinded_reporters = user.blinding.all()
             articles = Article.objects.exclude(reporter__in=blinded_reporters)  # 블라인드한 기자의 기사 제외
         else:
             # 비회원에게는 모든 기사 제공
             articles = Article.objects.all()
 
-        serializer = ArticleListSerializer(articles, many=True)
-        return Response(serializer.data, status=200)
-        
+        paginator = self.pagination_class()
+        paginated_articles = paginator.paginate_queryset(articles, request)
+        serializer = ArticleListSerializer(paginated_articles, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
 
     def post(self, request, *args, **kwargs):
         self.permission_classes = [
@@ -83,8 +82,8 @@ class ArticleDetailAPIView(APIView):
         ]
         article = self.get_object(pk)
         user = request.user
-        blinded_reporters = Blind.objects.filter(blinder=user).values_list('blinded', flat=True)
-        if article.reporter.id in blinded_reporters:
+        blinded_reporters = user.blinding.all()
+        if article.reporter in blinded_reporters:
             return Response({"ERROR": "블라인드 하신 기사입니다."}, status=404)
         serializer = ArticleDetailSerializer(article)
         return Response(serializer.data, status=201)

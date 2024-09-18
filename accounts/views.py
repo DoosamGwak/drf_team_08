@@ -1,6 +1,5 @@
-from django.contrib.auth import authenticate, logout
 from django.shortcuts import get_object_or_404
-from .models import User,Blind
+from .models import User
 from .permissions import OwnerOnly
 from .serializers import (
     UserSerializer,
@@ -95,28 +94,20 @@ class BlindReporter(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, username):
-        user = request.user
-        reporter = get_object_or_404(User, username=username)
-        if reporter == user :
-            return Response({'Error':  '잘못된 접근입니다.'}, status=404)
-        # if reporter.DoesNotExist:
-        #     print(id(reporter),id(user))
-        #     return Response({'Error':'기자를 찾을 수 없습니다.'}, status=404)
-
-        # 블라인드 추가
-        Blind.objects.get_or_create(blinder=request.user, blinded=reporter)
-        return Response({'status': f'{reporter.username}가 블라인드 처리 되었습니다.'}, status=200)
+        blinded = get_object_or_404(User, username=username)
+        if blinded in request.user.blinding.all():
+            return Response({"message": f" {username}을 이미 블라인딩 하셨습니다."}, status=200)
+        request.user.blinding.add(blinded)
+        return Response({"message": f" {username}을 블라인딩 하셨습니다."}, status=200)
+    
 
 class UnblindReporter(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, username):
-        reporter = User.objects.get(username=username)
-        if request.user is reporter:
-            return Response({'Error':  '잘못된 접근입니다.'}, status=404)
-        if reporter.DoesNotExist:
-            return Response({'Error':  '기자를 찾을 수 없습니다.'}, status=404)
-
-        # 블라인드 제거
-        Blind.objects.filter(blinder=request.user, blinded=reporter)
-        return Response({'status': f'unblinded {reporter.user.username}'}, status=200)
+        unblinded = get_object_or_404(User, username=username)
+        if unblinded  not in request.user.blinding.all():
+            return Response({"message": f" {username}을 이미 블라인딩 해제 하셨습니다."}, status=200)
+        request.user.blinding.remove(unblinded)
+        return Response({"message": f" {username}을 블라인딩 해제 하셨습니다."}, status=200)
+        

@@ -1,6 +1,4 @@
-from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
-from accounts.models import Blind,User
 from .models import Article,Comment,Image,Category
 
 
