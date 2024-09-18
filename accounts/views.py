@@ -10,7 +10,7 @@ from .serializers import (
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import permission_classes
 
@@ -89,6 +89,7 @@ class UserProfileView(APIView):
             return Response(serializer.data, status=200)
         return Response({"message": "잘못된 데이터형식입니다."}, status=400)
 
+
 class BlindReporter(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -96,9 +97,9 @@ class BlindReporter(APIView):
         blinded = get_object_or_404(User, username=username)
         if blinded in request.user.blinding.all():
             request.user.blinding.remove(blinded)
-            return Response({"message": f" {username}을 블라인딩 해제 하셨습니다."}, status=200)
-        
+            return Response(
+                {"message": f" {username}을 블라인딩 해제 하셨습니다."}, status=200
+            )
+
         request.user.blinding.add(blinded)
         return Response({"message": f" {username}을 블라인딩 하셨습니다."}, status=200)
-    
-        

@@ -39,43 +39,18 @@ class ArticleListAPIView(ListCreateAPIView):
             )  # 블라인드한 기자의 기사 제외
         return super().get(request, *args, **kwargs)
 
-    # def get(self, request):
-    #     self.permission_classes = [AllowAny]
-    #     user = request.user
-
-    #     # 사용자가 회원인 경우
-    #     if user.is_authenticated:
-    #         blinded_reporters = user.blinding.all()
-    #         articles = Article.objects.exclude(
-    #             reporter__in=blinded_reporters
-    #         )  # 블라인드한 기자의 기사 제외
-    #     else:
-    #         # 비회원에게는 모든 기사 제공
-    #         articles = Article.objects.all()
-
-    #     paginator = self.pagination_class()
-    #     paginated_articles = paginator.paginate_queryset(articles, request)
-    #     serializer = ArticleListSerializer(paginated_articles, many=True)
-    #     return paginator.get_paginated_response(serializer.data)
-
     def post(self, request, *args, **kwargs):
         self.serializer_class = ArticleCreateSerializer
-        serializer = self.serializer_class
         images = request.FILES.getlist("images")
         if not images:  # 이미지 key error 처리
             return Response({"ERROR": "Image file is required."}, status=400)
-        article = serializer.save(reporter=request.user)
-        for image in images:
-            Image.objects.create(article=article, image_url=image)
         return super().post(request, *args, **kwargs)
 
-    # def perform_create(self, serializer):
-    #     images = self.request.FILES.getlist("images")
-    #     if not images:  # 이미지 key error 처리
-    #         return Response({"ERROR": "Image file is required."}, status=400)
-    #     article = serializer.save(reporter=self.request.user)
-    #     for image in images:
-    #         Image.objects.create(article=article, image_url=image)
+    def perform_create(self, serializer):
+        images = self.request.FILES.getlist("images")
+        article = serializer.save(reporter=self.request.user)
+        for image in images:
+            Image.objects.create(article=article, image_url=image)
 
 
 # 기사 세부 조회 수정 및 삭제
