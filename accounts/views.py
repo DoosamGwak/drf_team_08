@@ -1,7 +1,5 @@
-from django.contrib.auth import authenticate, logout
 from django.shortcuts import get_object_or_404
 from .models import User
-from .validators import validate_user_data
 from .permissions import OwnerOnly
 from .serializers import (
     UserSerializer,
@@ -89,4 +87,18 @@ class UserProfileView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=200)
-        return Response({"msg": "잘못된 데이터형식입니다."}, status=400)
+        return Response({"message": "잘못된 데이터형식입니다."}, status=400)
+
+class BlindReporter(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, username):
+        blinded = get_object_or_404(User, username=username)
+        if blinded in request.user.blinding.all():
+            request.user.blinding.remove(blinded)
+            return Response({"message": f" {username}을 블라인딩 해제 하셨습니다."}, status=200)
+        
+        request.user.blinding.add(blinded)
+        return Response({"message": f" {username}을 블라인딩 하셨습니다."}, status=200)
+    
+        

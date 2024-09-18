@@ -6,4 +6,5 @@ urlpatterns = [
     path("login/", views.UserLoginView.as_view()),
     path("logout/", views.UserLogoutView.as_view()),
     path("<str:username>/", views.UserProfileView.as_view()),
+    path("<str:username>/blind/", views.BlindReporter.as_view()),
 ]

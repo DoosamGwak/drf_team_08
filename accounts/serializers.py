@@ -51,5 +51,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             'birthday',
             'image',
             'gender',
-            "introduction",
+            'introduction',
         )
+
