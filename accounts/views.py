@@ -23,7 +23,7 @@ class UserCreateView(APIView):
         user.save()
 
         refresh = RefreshToken.for_user(user)
-        Response_dict = serializer.data
+        Response_dict = {"message": "정상적으로 회원가입이 되었습니다."}
         Response_dict["access"] = str(refresh.access_token)
         Response_dict["refresh"] = str(refresh)
         return Response(Response_dict, status=status.HTTP_201_CREATED)
@@ -96,18 +96,10 @@ class BlindReporter(APIView):
     def post(self, request, username):
         blinded = get_object_or_404(User, username=username)
         if blinded in request.user.blinding.all():
-            return Response({"message": f" {username}을 이미 블라인딩 하셨습니다."}, status=200)
+            request.user.blinding.remove(blinded)
+            return Response({"message": f" {username}을 블라인딩 해제 하셨습니다."}, status=200)
+        
         request.user.blinding.add(blinded)
         return Response({"message": f" {username}을 블라인딩 하셨습니다."}, status=200)
     
-
-class UnblindReporter(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, username):
-        unblinded = get_object_or_404(User, username=username)
-        if unblinded  not in request.user.blinding.all():
-            return Response({"message": f" {username}을 이미 블라인딩 해제 하셨습니다."}, status=200)
-        request.user.blinding.remove(unblinded)
-        return Response({"message": f" {username}을 블라인딩 해제 하셨습니다."}, status=200)
         

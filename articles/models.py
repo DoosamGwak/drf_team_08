@@ -15,6 +15,7 @@ class Article(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     hits = models.PositiveIntegerField(blank=True, default=0)
+    hate = models.ManyToManyField(get_user_model(), related_name='hate_article', blank=True)
 
     def __str__(self):
         return self.title

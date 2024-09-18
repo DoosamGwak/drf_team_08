@@ -175,7 +175,6 @@ class CategoryEditAPIView(APIView):
     
     def put(self, request, category_pk):
         category = self.get_object(category_pk)
-        category = Category.objects.get(pk=category_pk)
         serializer = CategorySerializer(category, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -183,7 +182,19 @@ class CategoryEditAPIView(APIView):
     
     def delete(self, request, category_pk):
         category = self.get_object(category_pk)
-        category = Category.objects.get(pk=category_pk)
         category.delete()
         return Response({"detail": "카테고리가 삭제되었습니다."}, status=204)
     
+# 싫어요 기능
+class HateAPIView(APIView):
+    permission_classes = [IsAuthenticated] #회원만 접근 가능
+
+    def post(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+
+        if request.user in article.hate.all():
+            article.hate.remove(request.user)
+            return Response("싫어요! 취소했습니다.", status=200)
+        
+        article.hate.add(request.user)
+        return Response("싫어요! 했습니다.", status=200)
