@@ -58,4 +58,4 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 class BlindSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blind
-        fields = ['blinder', 'blinded']        
+        fields = ['user', 'reporter']

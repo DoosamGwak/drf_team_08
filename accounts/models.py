@@ -16,9 +16,9 @@ class User(AbstractUser):
     image = models.ImageField(upload_to="images/", default="images/default_user.png")
     gender = models.CharField(max_length=1, choices=CHOICE_GENDER)
     introduction = models.TextField(blank=True)
-
+    blinded_journalists = models.ManyToManyField(Journalist, related_name='blinded_by_users', blank=True)
     def __str__(self):
-        return self.user.username
+        return self.username
 
 
 class Blind(models.Model):

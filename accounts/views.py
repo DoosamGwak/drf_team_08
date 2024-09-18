@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate, logout
 from django.shortcuts import get_object_or_404
-from .models import User
-from .validators import validate_user_data
+from .models import User,Blind
 from .permissions import OwnerOnly
 from .serializers import (
     UserSerializer,
@@ -90,4 +89,34 @@ class UserProfileView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=200)
-        return Response({"msg": "잘못된 데이터형식입니다."}, status=400)
+        return Response({"message": "잘못된 데이터형식입니다."}, status=400)
+
+class BlindReporter(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, username):
+        user = request.user
+        reporter = get_object_or_404(User, username=username)
+        if reporter == user :
+            return Response({'Error':  '잘못된 접근입니다.'}, status=404)
+        # if reporter.DoesNotExist:
+        #     print(id(reporter),id(user))
+        #     return Response({'Error':'기자를 찾을 수 없습니다.'}, status=404)
+
+        # 블라인드 추가
+        Blind.objects.get_or_create(blinder=request.user, blinded=reporter)
+        return Response({'status': f'{reporter.username}가 블라인드 처리 되었습니다.'}, status=200)
+
+class UnblindReporter(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, username):
+        reporter = User.objects.get(username=username)
+        if request.user is reporter:
+            return Response({'Error':  '잘못된 접근입니다.'}, status=404)
+        if reporter.DoesNotExist:
+            return Response({'Error':  '기자를 찾을 수 없습니다.'}, status=404)
+
+        # 블라인드 제거
+        Blind.objects.filter(blinder=request.user, blinded=reporter)
+        return Response({'status': f'unblinded {reporter.user.username}'}, status=200)

@@ -9,8 +9,8 @@ class Category(models.Model):
 
 class Article(models.Model):
     title = models.CharField(max_length=200)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="category")
-    reporter = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,related_name="reporter")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="category_article")
+    reporter = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,related_name="reporter_article")
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

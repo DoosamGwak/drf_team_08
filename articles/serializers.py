@@ -1,6 +1,6 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
-
+from accounts.models import Blind,User
 from .models import Article,Comment,Image,Category
 
 
@@ -79,6 +79,7 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "title",
+            "category",
             "content",
             "images",
             "reporter",
@@ -96,7 +97,7 @@ class ArticleCreateSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     article = serializers.CharField(source="article.title", read_only=True)
-
+    commentor = serializers.StringRelatedField(read_only=True)
     class Meta:
         model = Comment
-        fields = ("article", "content", "created_at", "updated_at")
+        fields = ("article", "commentor", "content", "created_at", "updated_at")

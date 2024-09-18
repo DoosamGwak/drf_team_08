@@ -10,6 +10,7 @@ from rest_framework.permissions import (
 )
 from rest_framework.generics import ListCreateAPIView
 from django.shortcuts import get_object_or_404
+from accounts.models import Blind
 from .models import Article,Comment,Image,Category
 from .serializers import (
     ArticleListSerializer,
@@ -19,17 +20,36 @@ from .serializers import (
     CategorySerializer,
 )
 from .permissons import ArticleOwnerOnly, ReporterOnly
-from .pagnations import CommentPagination
+from .pagnations import CommentPagination, ArticlePagination
 
 
+# 기사 생성
 class ArticleListAPIView(ListCreateAPIView):
     queryset = Article.objects.all()
-    pagination_class = PageNumberPagination
+    pagination_class = ArticlePagination
     serializer_class = ArticleListSerializer
     permission_classes = [
         IsAuthenticatedOrReadOnly,
         ReporterOnly,
     ]
+
+    def get(self, request):
+        self.permission_classes = [AllowAny] 
+        user = request.user
+        print(user)
+
+        # 사용자가 회원인 경우
+        if user.is_authenticated:
+            blinded_reporters = Blind.objects.filter(blinder=user).values_list('blinded', flat=True)
+            print(blinded_reporters)
+            articles = Article.objects.exclude(reporter__in=blinded_reporters)  # 블라인드한 기자의 기사 제외
+        else:
+            # 비회원에게는 모든 기사 제공
+            articles = Article.objects.all()
+
+        serializer = ArticleListSerializer(articles, many=True)
+        return Response(serializer.data, status=200)
+        
 
     def post(self, request, *args, **kwargs):
         self.permission_classes = [
@@ -59,18 +79,22 @@ class ArticleDetailAPIView(APIView):
 
     def get(self, request, pk):
         self.permission_classes = [
-            AllowAny,
+            IsAuthenticated,
         ]
         article = self.get_object(pk)
+        user = request.user
+        blinded_reporters = Blind.objects.filter(blinder=user).values_list('blinded', flat=True)
+        if article.reporter.id in blinded_reporters:
+            return Response({"ERROR": "블라인드 하신 기사입니다."}, status=404)
         serializer = ArticleDetailSerializer(article)
-        return Response(serializer.data)
+        return Response(serializer.data, status=201)
 
     def put(self, request, pk):
         article = self.get_object(pk)
         serializer = ArticleDetailSerializer(article, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=201)
 
     def delete(self, request, pk):
         article = self.get_object(pk)
@@ -89,7 +113,7 @@ class CommentListAPIView(APIView):
         article = self.get_object(pk)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(article=article)
+            serializer.save(article=article, commentor=self.request.user)
             return Response(serializer.data, status=201)
 
     def get(self, request, pk):
