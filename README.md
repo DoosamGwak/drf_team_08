@@ -40,7 +40,7 @@ DEBUG = env("DEBUG")
 
 ## Architecture
 - erd
-![blame_news ERD](https://github.com/user-attachments/assets/d76c971f-bd32-46d4-a193-141a8009e8ca)
+![blame_news ERD2](https://github.com/user-attachments/assets/c08210d8-e6ae-4090-a8ab-77f22526d528)
 
 - project architecture
 ```
