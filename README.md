@@ -2,12 +2,14 @@
 # blame_news
 
 ## Introduction
-- Projectname : spartamarket drf
-- Build shoping mall back-end with using django-DRF
+- Projectname : blame_news
+- Build a business newspaper site backend using Django - DRF
  
 ## Contributors
 - Seungju Yi
 - Dongin Seo
+- Kwangyeol Lee
+- Geonhui Park
 
 ## Duration
 - 2024.09.11 ~ Now
@@ -306,4 +308,4 @@ DEBUG = env("DEBUG")
 
    </div>
   </details>
-
+ 
