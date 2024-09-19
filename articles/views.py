@@ -7,7 +7,6 @@ from rest_framework.permissions import (
 )
 from rest_framework.generics import ListCreateAPIView
 from django.shortcuts import get_object_or_404
-
 from .models import Article, Comment, Image, Category
 from .serializers import (
     ArticleListSerializer,
@@ -79,7 +78,7 @@ class ArticleDetailAPIView(APIView):
         serializer = ArticleDetailSerializer(article, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data, status=201)
+            return Response(serializer.data, status=200)
 
     def delete(self, request, pk):
         article = self.get_object(pk)
@@ -90,6 +89,7 @@ class ArticleDetailAPIView(APIView):
 
 # 댓글 작성 및  목록 조회
 class CommentListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     pagination_class = CommentPagination
 
     def get_object(self, pk):
@@ -113,11 +113,16 @@ class CommentListAPIView(APIView):
 
 # 댓글 수정 및  삭제
 class CommentEditAPIView(APIView):
+    permission_classes = [IsAdminUser]
 
     def put(self, request, comment_pk):
         comment = Comment.objects.filter(pk=comment_pk, is_deleted=False).first()
+        commentor = comment.commentor
+        user = request.user
+        if user != commentor:
+            return Response({"error": "이 댓글을 쓴 본인이 아닙니다."},status=403)
         if not comment:
-            return Response({"error": "이 댓글을 찾을 수 없습니다."},status=400)
+            return Response({"error": "이 댓글을 찾을 수 없습니다."},status=404)
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -126,31 +131,38 @@ class CommentEditAPIView(APIView):
 
     def delete(self, request, comment_pk):
         comment = Comment.objects.filter(pk=comment_pk, is_deleted=False).first()
+        commentor = comment.commentor
+        user = request.user
+        if user != commentor:
+            return Response({"error": "이 댓글을 쓴 본인이 아닙니다."},status=403)
         if not comment:
-            return Response({"error": "이 댓글을 찾을 수 없습니다."},status=400)
+            return Response({"error": "이 댓글을 찾을 수 없습니다."},status=404)
         comment.delete()
         return Response({"detail": "댓글이 삭제되었습니다."}, status=204)
 
 
 # 카테고리 생성 및  목록 조회
 class CategoryAPIView(APIView):
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [IsAuthenticated]
+        elif self.request.method == 'POST':
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = []
+        return [permission() for permission in permission_classes]
 
-    permission_classes = [IsAdminUser]  # 관리자만 접근 가능
+    def get(self, request):
+        category = Category.objects.all()
+        serializer = CategorySerializer(category, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = CategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)
-        return Response({"Error": "이미 생성된 카테고리 입니다."}, status=400)
-
-    permission_classes = [IsAuthenticated]  # 회원만 접근 가능
-
-    def get(self, request):
-        category = Category.objects.all()
-        serializer = CategorySerializer(category, many=True)
-        return Response(serializer.data, status=200)
-
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"Error": "이미 생성된 카테고리입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
 # 카테고리 수정 및  삭제
 class CategoryEditAPIView(APIView):

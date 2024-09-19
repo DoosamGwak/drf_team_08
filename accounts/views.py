@@ -12,14 +12,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.decorators import permission_classes
 
 
 class UserLoginView(APIView):
     def post(self, request):
         user = get_object_or_404(User, username=request.data["username"])
+        password = request.data.get('password')
         if not user.is_active:
             return Response({"message": "회원탈퇴한 아이디 입니다."}, status=404)
+        if not user.check_password(password):
+            return Response(
+                {"message": "입력하신 패스워드가 일치하지 않습니다."}, status=400
+            )
         refresh = RefreshToken.for_user(user)
         serializer = UserLoginSerializer(user)
         Response_dict = serializer.data
@@ -54,8 +58,8 @@ class UserCreateView(APIView):
             Response_dict["refresh"] = str(refresh)
             return Response(Response_dict, status=201)
 
-    @permission_classes([IsAuthenticated])
     def delete(self, request):
+        self.permission_classes = [IsAuthenticated]
         user = request.user
         data = request.data
         if not (("password" in data) and ("refresh" in data)):

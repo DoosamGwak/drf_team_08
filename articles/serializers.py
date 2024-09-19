@@ -21,25 +21,39 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
-    image = ImageSerializer(many=True, read_only=True)
+    images = ImageSerializer(many=True, read_only=True)
     reporter = serializers.StringRelatedField()
-
+    hate_count = serializers.SerializerMethodField()
+    
     class Meta:
         model = Article
-        fields = "__all__"
+        fields = (
+            "id", 
+            "category",
+            "title",
+            "reporter",
+            "content",
+            "images",
+            "hits",
+            "hate_count",
+        )
 
     # 조회수 증가 로직
     def to_representation(self, instance):
         instance.hits += 1
         instance.save(update_fields=["hits"])
         return super().to_representation(instance)
+    
+    # 싫어요 수 카운팅
+    def get_hate_count(self, obj):
+        return obj.hate.count()
 
 
 class ArticleListSerializer(serializers.ModelSerializer):
     preview_content = serializers.SerializerMethodField(read_only=True)
     preview_image = serializers.SerializerMethodField(read_only=True)
     reporter = serializers.StringRelatedField(read_only=True)
-
+    hate_count = serializers.SerializerMethodField()
     class Meta:
         model = Article
         fields = (
@@ -50,7 +64,12 @@ class ArticleListSerializer(serializers.ModelSerializer):
             "preview_content",
             "preview_image",
             "hits",
+            "hate_count",
         )
+
+    # 싫어요 수 카운팅
+    def get_hate_count(self, obj):
+        return obj.hate.count()
 
     # 기사 리스트 내용 50자 이내로만 나오게 하는 로직
     def get_preview_content(self, instance):
