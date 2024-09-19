@@ -111,7 +111,7 @@ DEBUG = env("DEBUG")
     <summary><b>profile</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/accounts/profile/&#60;username>/
+   - endpoint : api/v1/accounts/&#60;username>/
    - method : GET
    - input in header
      - Required: access_token
@@ -125,7 +125,7 @@ DEBUG = env("DEBUG")
     <summary><b>account_update</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/accounts/profile/&#60;username>/
+   - endpoint : api/v1/accounts/&#60;username>/
    - method : PUT
    - input in header
      - Required: access_token
@@ -139,7 +139,7 @@ DEBUG = env("DEBUG")
     <summary><b>account_delete</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/accounts/profile/
+   - endpoint : api/v1/accounts/
    - method : DELETE
    - input in header
      - Required: access_token
@@ -187,7 +187,7 @@ DEBUG = env("DEBUG")
     <summary><b>blind/unblind</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/accounts/<username>/blind/
+   - endpoint : api/v1/accounts/&#60;username>/blind/
    - method : POST
    - input in header
      - Required: access_token
@@ -302,7 +302,7 @@ DEBUG = env("DEBUG")
     <summary><b>category_update</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/articles/category/&#60;int:category_pk/
+   - endpoint : api/v1/articles/category/&#60;int:category_pk>/
    - method : PUT
    - input in header
      - Required: access_token
@@ -315,7 +315,7 @@ DEBUG = env("DEBUG")
     <summary><b>category_delete</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/articles/category/&#60;int:category_pk/
+   - endpoint : api/v1/articles/category/&#60;int:category_pk>/
    - method : DELETE
    - input in header
      - Required: access_token
@@ -386,7 +386,7 @@ DEBUG = env("DEBUG")
     <summary><b>hate/unhate</b></summary>
     <div markdown="1">
 
-   - endpoint :api/v1/articles/<int:pk>/hate/
+   - endpoint :api/v1/articles/&#60;int:pk>/hate/
    - method : POST
    - input in header
      - Required: access_token
