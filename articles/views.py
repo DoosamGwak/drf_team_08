@@ -95,6 +95,7 @@ class ArticleDetailAPIView(UpdateAPIView):
 # 댓글 작성 및  목록 조회
 class CommentListAPIView(APIView):
     pagination_class = CommentPagination
+    permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
         return get_object_or_404(Article, pk=pk)
@@ -117,7 +118,8 @@ class CommentListAPIView(APIView):
 
 # 댓글 수정 및  삭제
 class CommentEditAPIView(APIView):
-
+    permission_classes = [IsAuthenticated]
+    
     def get_object(self, pk):
         return get_object_or_404(Comment, pk=pk)
 
@@ -141,6 +143,12 @@ class CommentEditAPIView(APIView):
 
 # 카테고리 생성 및  목록 조회
 class CategoryAPIView(APIView):
+    permission_classes = [IsAuthenticated]  # 회원만 접근 가능
+
+    def get(self, request):
+        category = Category.objects.all()
+        serializer = CategorySerializer(category, many=True)
+        return Response(serializer.data, status=200)
 
     permission_classes = [IsAdminUser]  # 관리자만 접근 가능
 
@@ -151,12 +159,6 @@ class CategoryAPIView(APIView):
             return Response(serializer.data, status=201)
         return Response({"Error": "이미 생성된 카테고리 입니다."}, status=400)
 
-    permission_classes = [IsAuthenticated]  # 회원만 접근 가능
-
-    def get(self, request):
-        category = Category.objects.all()
-        serializer = CategorySerializer(category, many=True)
-        return Response(serializer.data, status=200)
 
 
 # 카테고리 수정 및  삭제
