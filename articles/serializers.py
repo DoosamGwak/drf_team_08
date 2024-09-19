@@ -21,7 +21,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ArticleDetailSerializer(serializers.ModelSerializer):
-    image = ImageSerializer(many=True, read_only=True)
+    images = ImageSerializer(many=True, read_only=True)
     reporter = serializers.StringRelatedField()
 
     class Meta:
