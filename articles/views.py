@@ -1,15 +1,13 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (
     IsAuthenticated,
-    AllowAny,
-    IsAuthenticatedOrReadOnly,
     IsAdminUser,
 )
 from rest_framework.generics import ListCreateAPIView
 from django.shortcuts import get_object_or_404
+
 from .models import Article, Comment, Image, Category
 from .serializers import (
     ArticleListSerializer,
@@ -87,7 +85,7 @@ class ArticleDetailAPIView(APIView):
         article = self.get_object(pk)
         self.check_object_permissions(request, article)
         article.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=204)
 
 
 # 댓글 작성 및  목록 조회
@@ -110,7 +108,7 @@ class CommentListAPIView(APIView):
         paginator = self.pagination_class()
         paginated_comments = paginator.paginate_queryset(comment, request)
         serializer = CommentSerializer(paginated_comments, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        return paginator.get_paginated_response(serializer.data, status=200)
 
 
 # 댓글 수정 및  삭제
@@ -125,7 +123,7 @@ class CommentEditAPIView(APIView):
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=201)
         return Response(status=400)
 
     def delete(self, request, comment_pk):
@@ -159,7 +157,6 @@ class CategoryAPIView(APIView):
 
 # 카테고리 수정 및  삭제
 class CategoryEditAPIView(APIView):
-
     permission_classes = [IsAdminUser]  # 관리자만 접근 가능
 
     def get_object(self, pk):
