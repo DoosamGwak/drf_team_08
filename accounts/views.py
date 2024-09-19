@@ -60,13 +60,14 @@ class UserCreateView(APIView):
 
     def delete(self, request):
         self.permission_classes = [IsAuthenticated]
+        self.check_permissions(request)
         user = request.user
         data = request.data
         if not (("password" in data) and ("refresh" in data)):
             return Response(
                 {
                     "password": "패스워드를 입력해주세요",
-                    "refresh": "refresh토큰 값을 입력해주세요.",
+                    "refresh": "refresh토큰 값을 입력해주세요."
                 },
                 status=400,
             )
