@@ -114,12 +114,10 @@ class CommentListAPIView(APIView):
 # 댓글 수정 및  삭제
 class CommentEditAPIView(APIView):
 
-    def get_object(self, pk):
-        return get_object_or_404(Comment, pk=pk)
-
     def put(self, request, comment_pk):
-        comment = self.get_object(comment_pk)
-        comment = Comment.objects.get(pk=comment_pk, is_deleted=False)
+        comment = Comment.objects.filter(pk=comment_pk, is_deleted=False).first()
+        if not comment:
+            return Response({"error": "이 댓글을 찾을 수 없습니다."},status=400)
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -127,10 +125,9 @@ class CommentEditAPIView(APIView):
         return Response(status=400)
 
     def delete(self, request, comment_pk):
-        comment = self.get_object(comment_pk)
-        if Comment.DoesNotExist:
-            return Response({"error": "이 댓글을 찾을 수 없습니다."}, status=404)
-        comment = Comment.objects.get(pk=comment_pk, is_deleted=False)
+        comment = Comment.objects.filter(pk=comment_pk, is_deleted=False).first()
+        if not comment:
+            return Response({"error": "이 댓글을 찾을 수 없습니다."},status=400)
         comment.delete()
         return Response({"detail": "댓글이 삭제되었습니다."}, status=204)
 
