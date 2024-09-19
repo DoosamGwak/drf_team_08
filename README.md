@@ -94,10 +94,91 @@ DEBUG = env("DEBUG")
 
 ### accounts
 
+<details>
+    <summary><b>sign_up</b></summary>
+    <div markdown="1">
+
+   - endpoint : api/v1/accounts/
+   - method : POST
+   - input in header
+     - Content-type: application/json
+   - input in body
+     - Required: username, password, email, name, nickname, birthday, gender
+   </div>
+  </details>
+
+  <details>
+    <summary><b>profile</b></summary>
+    <div markdown="1">
+
+   - endpoint : api/v1/accounts/profile/<username>/
+   - method : GET
+   - input in header
+     - Required: access_token
+   - input in body
+     - Required: None
+       
+   </div>
+  </details>
+
+<details>
+    <summary><b>update</b></summary>
+    <div markdown="1">
+
+   - endpoint : api/v1/articles/&#60;int:pk>/
+   - method : GET
+   - response
+     - title,content,reporter,created_at,
+       updated_at,image,hits,hate(count),
+       comment(count)
+       
+   </div>
+  </details>
+
+<details>
+    <summary><b>delete</b></summary>
+    <div markdown="1">
+
+   - endpoint : api/v1/articles/&#60;int:pk>/
+   - method : PUT
+   - request header
+     - Authorization,Content-type
+   - request
+     - title,content,updated_at,image
+       
+   </div>
+  </details>
+
+<details>
+    <summary><b>login</b></summary>
+    <div markdown="1">
+
+   - endpoint : api/v1/articles/&#60;int:pk>/
+   - method : DELETE
+   - request header
+     - Authorization
+   
+       
+   </div>
+  </details>
+
+  <details>
+    <summary><b>logout</b></summary>
+    <div markdown="1">
+
+   - endpoint : api/v1/articles/&#60;int:pk>/
+   - method : DELETE
+   - request header
+     - Authorization
+   
+       
+   </div>
+  </details>
+
 ### blind
 
 <details>
-    <summary>blind/unblind</summary>
+    <summary><b>blind/unblind</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/accounts/<username>/blind/
@@ -185,7 +266,7 @@ DEBUG = env("DEBUG")
 ### category
 
 <details>
-    <summary>category create</summary>
+    <summary><b>category_create</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/articles/category/
@@ -198,7 +279,7 @@ DEBUG = env("DEBUG")
    </div>
   </details>
 <details>
-    <summary>category list</summary>
+    <summary><b>category_list</b></summary>
     <div markdown="1">
 
    - endpoint :  api/v1/articles/category/
@@ -212,7 +293,7 @@ DEBUG = env("DEBUG")
   </details>
 
   <details>
-    <summary>category update</summary>
+    <summary><b>category_update</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/articles/category/&#60;int:category_pk/
@@ -225,7 +306,7 @@ DEBUG = env("DEBUG")
    </div>
   </details>
     <details>
-    <summary>category delete</summary>
+    <summary><b>category_delete</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/articles/category/&#60;int:category_pk/
@@ -241,7 +322,7 @@ DEBUG = env("DEBUG")
 ### comments
 
 <details>
-    <summary>comment create</summary>
+    <summary><b>comment_create</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/articles/&#60;int:pk>/comment/
@@ -254,7 +335,7 @@ DEBUG = env("DEBUG")
    </div>
   </details>
 <details>
-    <summary>comment list</summary>
+    <summary><b>comment_list</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/articles/&#60;int:pk>/comment/
@@ -268,7 +349,7 @@ DEBUG = env("DEBUG")
   </details>
 
   <details>
-    <summary>comment updaate</summary>
+    <summary><b>comment_updaate</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/articles/comment/&#60;int:comment_pk>/
@@ -281,7 +362,7 @@ DEBUG = env("DEBUG")
    </div>
   </details>
     <details>
-    <summary>comment delete</summary>
+    <summary><b>comment_delete</b></summary>
     <div markdown="1">
 
    - endpoint : api/v1/articles/comment/&#60;int:comment_pk>/
@@ -296,7 +377,7 @@ DEBUG = env("DEBUG")
   
   ### hate
 <details>
-    <summary>hate/unhate</summary>
+    <summary><b>hate/unhate</b></summary>
     <div markdown="1">
 
    - endpoint :api/v1/articles/<int:pk>/hate/
