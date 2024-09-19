@@ -111,7 +111,7 @@ DEBUG = env("DEBUG")
     <summary><b>profile</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/accounts/profile/<username>/
+   - endpoint : api/v1/accounts/profile/&#60;username>/
    - method : GET
    - input in header
      - Required: access_token
@@ -122,29 +122,29 @@ DEBUG = env("DEBUG")
   </details>
 
 <details>
-    <summary><b>update</b></summary>
+    <summary><b>account_update</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/articles/&#60;int:pk>/
-   - method : GET
-   - response
-     - title,content,reporter,created_at,
-       updated_at,image,hits,hate(count),
-       comment(count)
+   - endpoint : api/v1/accounts/profile/&#60;username>/
+   - method : PUT
+   - input in header
+     - Required: access_token
+   - input in body
+     - Required: email, name, nickname, birthday, gender
        
    </div>
   </details>
 
 <details>
-    <summary><b>delete</b></summary>
+    <summary><b>account_delete</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/articles/&#60;int:pk>/
-   - method : PUT
-   - request header
-     - Authorization,Content-type
-   - request
-     - title,content,updated_at,image
+   - endpoint : api/v1/accounts/profile/
+   - method : DELETE
+   - input in header
+     - Required: access_token
+   - input in body
+     - Required: password, refresh_token
        
    </div>
   </details>
@@ -153,10 +153,13 @@ DEBUG = env("DEBUG")
     <summary><b>login</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/articles/&#60;int:pk>/
-   - method : DELETE
-   - request header
-     - Authorization
+   - endpoint : api/v1/accounts/login/
+   - method : POST
+   - input in header
+     - Required: access_token
+     - Content-type: application/json
+   - input in body
+     - Required: username, password
    
        
    </div>
@@ -166,10 +169,13 @@ DEBUG = env("DEBUG")
     <summary><b>logout</b></summary>
     <div markdown="1">
 
-   - endpoint : api/v1/articles/&#60;int:pk>/
-   - method : DELETE
-   - request header
-     - Authorization
+   - endpoint : api/v1/accounts/logout/
+   - method : POST
+   - input in header
+     - Required: access_token
+     - Content-type: application/json
+   - input in body
+     - Required: refresh_token
    
        
    </div>
